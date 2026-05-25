@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ECOWATT | Household Carbon & Utility Auditor</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- CSS Style -->
+    <link rel="stylesheet" href="style.css">
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <i data-lucide="zap" class="logo-icon text-emerald"></i>
+                    <span class="logo-text">ECO<span class="text-accent">WATT</span></span>
+                </div>
+                <div class="streak-badge">
+                    <i data-lucide="flame" class="streak-icon"></i>
+                    <span>5-Day Eco Streak!</span>
+                </div>
+            </div>
+
+            <nav class="sidebar-menu">
+                <button class="nav-btn active" data-tab="dashboard">
+                    <i data-lucide="layout-dashboard"></i>
+                    <span>Dashboard</span>
+                </button>
+                <button class="nav-btn" data-tab="log-utility">
+                    <i data-lucide="plus-circle"></i>
+                    <span>Log Utilities</span>
+                </button>
+                <button class="nav-btn" data-tab="ledger">
+                    <i data-lucide="file-text"></i>
+                    <span>Audit Ledger</span>
+                </button>
+                <button class="nav-btn" data-tab="simulator">
+                    <i data-lucide="sliders"></i>
+                    <span>What-If Simulator</span>
+                </button>
+                <button class="nav-btn" data-tab="actions">
+                    <i data-lucide="check-square"></i>
+                    <span>Action Planner</span>
+                </button>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="user-profile">
+                    <div class="avatar">
+                        <i data-lucide="user"></i>
+                    </div>
+                    <div class="user-info">
+                        <span class="user-name">Green Household</span>
+                        <span class="user-rank">Eco Novice</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="main-header">
+                <div class="header-title">
+                    <h1 id="page-title">Dashboard</h1>
+                    <p class="text-secondary" id="page-subtitle">Track and analyze your household carbon footprint and energy savings.</p>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-secondary btn-icon" id="btn-export-audit">
+                        <i data-lucide="download"></i>
+                        <span>Export Audit Report</span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Scrollable Body Container -->
+            <div class="content-body">
+                
+                <!-- 1. DASHBOARD PANEL -->
+                <section id="dashboard" class="tab-panel active">
+                    <!-- Metric Highlights Grid -->
+                    <div class="metrics-grid">
+                        <!-- Main Carbon Score -->
+                        <div class="metric-card main-score">
+                            <div class="metric-card-header">
+                                <span class="metric-label">Annual Carbon Footprint</span>
+                                <i data-lucide="leaf" class="metric-icon text-emerald"></i>
+                            </div>
+                            <div class="metric-value-container">
+                                <span class="metric-number" id="total-carbon-value">0</span>
+                                <span class="metric-unit">kg CO₂e / yr</span>
+                            </div>
+                            <div class="carbon-comparison-bar">
+                                <div class="comparison-track">
+                                    <div class="comparison-fill" id="carbon-progress-fill" style="width: 0%"></div>
+                                </div>
+                                <div class="comparison-labels">
+                                    <span>Target: 4,000 kg</span>
+                                    <span class="text-right" id="comparison-percent">0% of avg</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Eco-Grade Circular Badge -->
+                        <div class="metric-card eco-grade-card">
+                            <div class="metric-card-header">
+                                <span class="metric-label">Eco-Rating Grade</span>
+                                <i data-lucide="award" class="metric-icon text-accent"></i>
+                            </div>
+                            <div class="eco-grade-display">
+                                <div class="grade-circle" id="grade-badge">A</div>
+                                <div class="grade-details">
+                                    <span class="grade-status" id="grade-status">Calculating...</span>
+                                    <span class="grade-feedback text-secondary" id="grade-feedback">Audit your utilities to see your rating.</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Utility Summary Stats -->
+                        <div class="metric-card quick-stats-card">
+                            <div class="metric-card-header">
+                                <span class="metric-label">Efficiency Performance</span>
+                                <i data-lucide="trending-down" class="metric-icon text-cyan"></i>
+                            </div>
+                            <ul class="quick-stats-list">
+                                <li>
+                                    <div class="stat-icon-wrapper text-emerald bg-emerald-trans">
+                                        <i data-lucide="zap"></i>
+                                    </div>
+                                    <div class="stat-info">
+                                        <span class="stat-name">Electricity Grid Share</span>
+                                        <span class="stat-data" id="stat-electricity">0 kWh (100% grid)</span>
+                                    </div>
+                                </li>
+                                <li>
+                                    <div class="stat-icon-wrapper text-accent bg-accent-trans">
+                                        <i data-lucide="car"></i>
+                                    </div>
+                                    <div class="stat-info">
+                                        <span class="stat-name">Transport Emissions</span>
+                                        <span class="stat-data" id="stat-transport">0 kg CO₂e</span>
+                                    </div>
+                                </li>
+                                <li>
+                                    <div class="stat-icon-wrapper text-cyan bg-cyan-trans">
+                                        <i data-lucide="droplet"></i>
+                                    </div>
+                                    <div class="stat-info">
+                                        <span class="stat-name">Water Audited</span>
+                                        <span class="stat-data" id="stat-water">0 gal</span>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Charts Grid -->
+                    <div class="charts-grid">
+                        <div class="chart-card">
+                            <div class="chart-header">
+                                <h3>Carbon Footprint Breakdown</h3>
+                                <p class="text-secondary">Percent contribution by sector</p>
+                            </div>
+                            <div class="chart-container">
+                                <canvas id="carbonDonutChart"></canvas>
+                            </div>
+                        </div>
+
+                        <div class="chart-card">
+                            <div class="chart-header">
+                                <h3>Monthly Consumption Trend</h3>
+                                <p class="text-secondary">CO₂ emission comparison (kg)</p>
+                            </div>
+                            <div class="chart-container">
+                                <canvas id="monthlyTrendChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Smart Energy Audit Alerts -->
+                    <div class="dashboard-section-title">
+                        <h2>Smart System Alerts & Recommendations</h2>
+                    </div>
+                    <div class="alerts-container" id="smart-alerts-container">
+                        <!-- Will be dynamically populated -->
+                        <div class="empty-alert-message">
+                            <i data-lucide="check-circle-2" class="text-emerald"></i>
+                            <span>No anomalies detected! Log your household energy bills to run an automated efficiency audit.</span>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 2. LOG UTILITY PANEL -->
+                <section id="log-utility" class="tab-panel">
+                    <div class="form-container">
+                        <div class="form-header">
+                            <h2>Utility Data Auditing Wizard</h2>
+                            <p class="text-secondary">Submit your recent bills or transit logs. The engine will instantly parse energy equivalents and record carbon contributions.</p>
+                        </div>
+                        
+                        <form id="utility-form" class="utility-wizard-form">
+                            <!-- Multi-step sections split visually -->
+                            <div class="form-section-title">
+                                <i data-lucide="home"></i>
+                                <h3>Home Utility Details</h3>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="bill-month">Utility Billing Month</label>
+                                    <select id="bill-month" required>
+                                        <option value="January">January</option>
+                                        <option value="February">February</option>
+                                        <option value="March">March</option>
+                                        <option value="April">April</option>
+                                        <option value="May">May</option>
+                                        <option value="June">June</option>
+                                        <option value="July">July</option>
+                                        <option value="August">August</option>
+                                        <option value="September">September</option>
+                                        <option value="October">October</option>
+                                        <option value="November">November</option>
+                                        <option value="December">December</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="bill-electricity">Electricity Consumed (kWh)</label>
+                                    <input type="number" id="bill-electricity" placeholder="e.g. 350" min="0" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="bill-gas">Natural Gas Consumed (therms)</label>
+                                    <input type="number" id="bill-gas" placeholder="e.g. 15" min="0" required>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="bill-water">Water Consumption (gallons)</label>
+                                    <input type="number" id="bill-water" placeholder="e.g. 3000" min="0" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="bill-waste">Total Waste / Trash Generated (kg)</label>
+                                    <input type="number" id="bill-waste" placeholder="e.g. 40" min="0" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="bill-recycling">Recycling & Composting Rate (%)</label>
+                                    <input type="number" id="bill-recycling" placeholder="e.g. 25" min="0" max="100" required>
+                                </div>
+                            </div>
+
+                            <div class="form-section-title">
+                                <i data-lucide="plane"></i>
+                                <h3>Transit & Transport Details</h3>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="transit-miles">Vehicle Miles Driven</label>
+                                    <input type="number" id="transit-miles" placeholder="e.g. 800" min="0" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="transit-type">Primary Vehicle Fuel Type</label>
+                                    <select id="transit-type">
+                                        <option value="petrol">Gasoline / Petrol Car</option>
+                                        <option value="diesel">Diesel Car</option>
+                                        <option value="hybrid">Hybrid Vehicle</option>
+                                        <option value="ev">Electric Vehicle (EV)</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="flight-miles">Air Travel / Flight Distance (miles)</label>
+                                    <input type="number" id="flight-miles" placeholder="e.g. 0" min="0" required>
+                                </div>
+                            </div>
+
+                            <div class="form-section-title">
+                                <i data-lucide="utensils-crosskey"></i>
+                                <h3>Household Consumption Profiles</h3>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="diet-profile">Primary Diet Profile</label>
+                                    <select id="diet-profile">
+                                        <option value="meat-heavy">Heavy Meat-Lover (Daily Beef/Lamb)</option>
+                                        <option value="meat-average">Average Omnivore (Red meat/poultry)</option>
+                                        <option value="pescatarian">Pescatarian (Fish & veggies)</option>
+                                        <option value="vegetarian">Vegetarian (Dairy, no meat)</option>
+                                        <option value="vegan">Vegan (100% plant-based)</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-actions-row">
+                                <button type="reset" class="btn btn-secondary">Clear Inputs</button>
+                                <button type="submit" class="btn btn-primary">
+                                    <i data-lucide="check"></i>
+                                    <span>Log & Calculate Footprint</span>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </section>
+
+                <!-- 3. LEDGER PANEL -->
+                <section id="ledger" class="tab-panel">
+                    <div class="ledger-container">
+                        <div class="ledger-header">
+                            <div>
+                                <h2>Audited Household Logs</h2>
+                                <p class="text-secondary">Historical ledger of all utility logs synced with local browser storage.</p>
+                            </div>
+                            <button class="btn btn-danger btn-icon" id="btn-clear-ledger">
+                                <i data-lucide="trash-2"></i>
+                                <span>Reset Auditor Data</span>
+                            </button>
+                        </div>
+
+                        <!-- Table -->
+                        <div class="table-responsive">
+                            <table class="ledger-table" id="ledger-table">
+                                <thead>
+                                    <tr>
+                                        <th>Month</th>
+                                        <th>Electricity (kWh)</th>
+                                        <th>Gas (therms)</th>
+                                        <th>Water (gal)</th>
+                                        <th>Transit (mi)</th>
+                                        <th>Waste (kg)</th>
+                                        <th>Carbon (kg CO₂e)</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="ledger-rows">
+                                    <!-- Dynamic rows loaded here -->
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <div class="empty-ledger-view" id="empty-ledger-view">
+                            <i data-lucide="folder-open"></i>
+                            <h3>No logged data entries</h3>
+                            <p class="text-secondary">Get started by entering your household utilities in the "Log Utilities" section.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 4. SIMULATOR PANEL -->
+                <section id="simulator" class="tab-panel">
+                    <div class="simulator-layout">
+                        <!-- Sliders Panel -->
+                        <div class="simulator-sliders-card">
+                            <div class="card-title-container">
+                                <h2>Interactive Carbon Action Simulator</h2>
+                                <p class="text-secondary">Toggle sliders and options to simulate the environmental impact of structural and lifestyle changes.</p>
+                            </div>
+
+                            <div class="simulator-group">
+                                <div class="slider-header">
+                                    <div class="slider-title-wrapper">
+                                        <i data-lucide="sun" class="text-accent"></i>
+                                        <span>Rooftop Solar Integration</span>
+                                    </div>
+                                    <span class="slider-indicator" id="sim-val-solar">0% solar</span>
+                                </div>
+                                <input type="range" class="sim-slider" id="sim-solar" min="0" max="100" value="0">
+                                <p class="slider-desc">Offset traditional grid electricity consumption with green solar panels.</p>
+                            </div>
+
+                            <div class="simulator-group">
+                                <div class="slider-header">
+                                    <div class="slider-title-wrapper">
+                                        <i data-lucide="lightbulb" class="text-yellow"></i>
+                                        <span>LED Bulb Retrofits & Smart Appliances</span>
+                                    </div>
+                                    <span class="slider-indicator" id="sim-val-efficiency">0% efficient</span>
+                                </div>
+                                <input type="range" class="sim-slider" id="sim-efficiency" min="0" max="40" value="0">
+                                <p class="slider-desc">Reduce energy consumption through efficient lighting, smart plugs, and high-tier appliances.</p>
+                            </div>
+
+                            <div class="simulator-group">
+                                <div class="slider-header">
+                                    <div class="slider-title-wrapper">
+                                        <i data-lucide="bike" class="text-cyan"></i>
+                                        <span>Eco-Transit Shift (Miles replaced/week)</span>
+                                    </div>
+                                    <span class="slider-indicator" id="sim-val-transit">0 mi/wk</span>
+                                </div>
+                                <input type="range" class="sim-slider" id="sim-transit" min="0" max="300" value="0">
+                                <p class="slider-desc">Commute via cycling, walking, or public transit to directly replace petrol driving miles.</p>
+                            </div>
+
+                            <div class="simulator-group">
+                                <div class="slider-header">
+                                    <div class="slider-title-wrapper">
+                                        <i data-lucide="utensils" class="text-emerald"></i>
+                                        <span>Plant-Based Diet Shift</span>
+                                    </div>
+                                    <span class="slider-indicator" id="sim-val-diet">Omnivore</span>
+                                </div>
+                                <input type="range" class="sim-slider" id="sim-diet" min="0" max="4" value="0">
+                                <p class="slider-desc">Substitute meat dishes with vegetarian or vegan meals (increments increase eco-friendliness).</p>
+                            </div>
+
+                            <div class="simulator-group">
+                                <div class="slider-header">
+                                    <div class="slider-title-wrapper">
+                                        <i data-lucide="refresh-cw" class="text-blue"></i>
+                                        <span>Target Recycling Rate</span>
+                                    </div>
+                                    <span class="slider-indicator" id="sim-val-recycling">0% recycle</span>
+                                </div>
+                                <input type="range" class="sim-slider" id="sim-recycling" min="0" max="100" value="0">
+                                <p class="slider-desc">Sort waste diligently to maximize household recycling and composting yields.</p>
+                            </div>
+                        </div>
+
+                        <!-- Real-time results display -->
+                        <div class="simulator-results-card">
+                            <div class="results-header">
+                                <h3>Estimated Annual Offset</h3>
+                                <p class="text-secondary font-xs">Dynamic projections based on auditor metrics</p>
+                            </div>
+
+                            <!-- Carbon Reduction Display -->
+                            <div class="offset-metric offset-carbon">
+                                <span class="offset-label">Carbon Savings</span>
+                                <div class="offset-value-container">
+                                    <span class="offset-number text-emerald" id="sim-carbon-saved">0</span>
+                                    <span class="offset-unit text-emerald">kg CO₂e / yr</span>
+                                </div>
+                                <div class="progress-bar-small">
+                                    <div class="progress-bar-small-fill bg-emerald" id="sim-carbon-bar" style="width: 0%"></div>
+                                </div>
+                            </div>
+
+                            <!-- Cost Savings Display -->
+                            <div class="offset-metric offset-money">
+                                <span class="offset-label">Utility Cost Reduction</span>
+                                <div class="offset-value-container">
+                                    <span class="offset-number text-cyan" id="sim-cost-saved">$0</span>
+                                    <span class="offset-unit text-cyan">/ year saved</span>
+                                </div>
+                                <div class="progress-bar-small">
+                                    <div class="progress-bar-small-fill bg-cyan" id="sim-cost-bar" style="width: 0%"></div>
+                                </div>
+                            </div>
+
+                            <!-- Equivalent Impact Widget -->
+                            <div class="equivalence-widget">
+                                <div class="equivalence-title">Environmental Equivalent</div>
+                                <div class="equivalence-grid">
+                                    <div class="eq-item">
+                                        <div class="eq-icon text-emerald bg-emerald-trans">
+                                            <i data-lucide="trees"></i>
+                                        </div>
+                                        <div class="eq-info">
+                                            <span class="eq-value" id="eq-trees">0</span>
+                                            <span class="eq-desc">Mature trees grown</span>
+                                        </div>
+                                    </div>
+                                    <div class="eq-item">
+                                        <div class="eq-icon text-accent bg-accent-trans">
+                                            <i data-lucide="car"></i>
+                                        </div>
+                                        <div class="eq-info">
+                                            <span class="eq-value" id="eq-miles">0</span>
+                                            <span class="eq-desc">Driving miles eliminated</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 5. ACTIONS & CHECKLIST PANEL -->
+                <section id="actions" class="tab-panel">
+                    <div class="actions-container">
+                        <div class="actions-header">
+                            <h2>Eco-Action Plan & Checklist</h2>
+                            <p class="text-secondary">Check off initiatives you have integrated. Checked items act as verified active factors that automatically reduce your real-time carbon auditive scoring.</p>
+                        </div>
+
+                        <div class="actions-split-grid">
+                            <!-- High Impact (Structural) -->
+                            <div class="action-category-card border-accent">
+                                <div class="cat-header">
+                                    <i data-lucide="flame" class="text-accent"></i>
+                                    <h3>High Impact Investments</h3>
+                                </div>
+                                <ul class="action-list">
+                                    <li class="action-item">
+                                        <label class="action-checkbox-wrapper">
+                                            <input type="checkbox" class="action-checkbox" data-impact="800" data-cost="120" id="act-solar">
+                                            <span class="custom-checkbox"></span>
+                                            <div class="action-label-details">
+                                                <span class="action-name">Install Solar Panels (5kW Array)</span>
+                                                <span class="action-stats text-accent"><i data-lucide="zap"></i> -800kg CO₂/yr • Save $120/yr</span>
+                                            </div>
+                                        </label>
+                                    </li>
+                                    <li class="action-item">
+                                        <label class="action-checkbox-wrapper">
+                                            <input type="checkbox" class="action-checkbox" data-impact="500" data-cost="250" id="act-heatpump">
+                                            <span class="custom-checkbox"></span>
+                                            <div class="action-label-details">
+                                                <span class="action-name">Upgrade to Heat Pump HVAC</span>
+                                                <span class="action-stats text-accent"><i data-lucide="flame"></i> -500kg CO₂/yr • Save $250/yr</span>
+                                            </div>
+                                        </label>
+                                    </li>
+                                    <li class="action-item">
+                                        <label class="action-checkbox-wrapper">
+                                            <input type="checkbox" class="action-checkbox" data-impact="400" data-cost="80" id="act-insulation">
+                                            <span class="custom-checkbox"></span>
+                                            <div class="action-label-details">
+                                                <span class="action-name">Double-Glaze Windows & Loft Insulation</span>
+                                                <span class="action-stats text-accent"><i data-lucide="shield"></i> -400kg CO₂/yr • Save $80/yr</span>
+                                            </div>
+                                        </label>
+                                    </li>
+                                </ul>
+                            </div>
+
+                            <!-- Medium Impact (Lifestyle & Appliances) -->
+                            <div class="action-category-card border-cyan">
+                                <div class="cat-header">
+                                    <i data-lucide="star" class="text-cyan"></i>
+                                    <h3>Medium Impact Actions</h3>
+                                </div>
+                                <ul class="action-list">
+                                    <li class="action-item">
+                                        <label class="action-checkbox-wrapper">
+                                            <input type="checkbox" class="action-checkbox" data-impact="250" data-cost="45" id="act-led">
+                                            <span class="custom-checkbox"></span>
+                                            <div class="action-label-details">
+                                                <span class="action-name">Retrofit 100% LED Lightbulbs</span>
+                                                <span class="action-stats text-cyan"><i data-lucide="lightbulb"></i> -250kg CO₂/yr • Save $45/yr</span>
+                                            </div>
+                                        </label>
+                                    </li>
+                                    <li class="action-item">
+                                        <label class="action-checkbox-wrapper">
+                                            <input type="checkbox" class="action-checkbox" data-impact="300" data-cost="150" id="act-diet">
+                                            <span class="custom-checkbox"></span>
+                                            <div class="action-label-details">
+                                                <span class="action-name">Adopt a 4-Day Vegetarian Diet</span>
+                                                <span class="action-stats text-cyan"><i data-lucide="utensils"></i> -300kg CO₂/yr • Save $150/yr</span>
+                                            </div>
+                                        </label>
+                                    </li>
+                                    <li class="action-item">
+                                        <label class="action-checkbox-wrapper">
+                                            <input type="checkbox" class="action-checkbox" data-impact="180" data-cost="30" id="act-coldwash">
+                                            <span class="custom-checkbox"></span>
+                                            <div class="action-label-details">
+                                                <span class="action-name">Wash Clothes in Cold Water Only</span>
+                                                <span class="action-stats text-cyan"><i data-lucide="wind"></i> -180kg CO₂/yr • Save $30/yr</span>
+                                            </div>
+                                        </label>
+                                    </li>
+                                </ul>
+                            </div>
+
+                            <!-- Low Cost / Operational Adjustments -->
+                            <div class="action-category-card border-emerald">
+                                <div class="cat-header">
+                                    <i data-lucide="smile" class="text-emerald"></i>
+                                    <h3>Quick Eco-Habits</h3>
+                                </div>
+                                <ul class="action-list">
+                                    <li class="action-item">
+                                        <label class="action-checkbox-wrapper">
+                                            <input type="checkbox" class="action-checkbox" data-impact="90" data-cost="20" id="act-thermostat">
+                                            <span class="custom-checkbox"></span>
+                                            <div class="action-label-details">
+                                                <span class="action-name">Lower Thermostat by 2°C (Winter)</span>
+                                                <span class="action-stats text-emerald"><i data-lucide="thermometer"></i> -90kg CO₂/yr • Save $20/yr</span>
+                                            </div>
+                                        </label>
+                                    </li>
+                                    <li class="action-item">
+                                        <label class="action-checkbox-wrapper">
+                                            <input type="checkbox" class="action-checkbox" data-impact="60" data-cost="15" id="act-vampire">
+                                            <span class="custom-checkbox"></span>
+                                            <div class="action-label-details">
+                                                <span class="action-name">Unplug "Vampire Power" Electronics</span>
+                                                <span class="action-stats text-emerald"><i data-lucide="plug"></i> -60kg CO₂/yr • Save $15/yr</span>
+                                            </div>
+                                        </label>
+                                    </li>
+                                    <li class="action-item">
+                                        <label class="action-checkbox-wrapper">
+                                            <input type="checkbox" class="action-checkbox" data-impact="50" data-cost="10" id="act-recycle">
+                                            <span class="custom-checkbox"></span>
+                                            <div class="action-label-details">
+                                                <span class="action-name">Diligently Compost Organic waste</span>
+                                                <span class="action-stats text-emerald"><i data-lucide="trash-2"></i> -50kg CO₂/yr • Save $10/yr</span>
+                                            </div>
+                                        </label>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- Notification Toast Element -->
+    <div class="toast" id="toast">
+        <i data-lucide="bell" id="toast-icon"></i>
+        <span id="toast-message">Success! Settings compiled.</span>
+    </div>
+
+    <!-- Application Script -->
+    <script src="app.js"></script>
+</body>
+</html>
